@@ -1,4 +1,5 @@
 import os
+import pandas as pd
 
 def get_file_names(directory='data', filter='.*'):
     '''
@@ -60,7 +61,7 @@ def extract_data_from_single_file(path):
         target_channel = labels[1]
         if target_channel not in D:
             D[target_channel] = {}
-        if target_sample not in D[target_fluo]:
+        if target_sample not in D[target_channel]:
             D[target_channel][target_sample] = []
         s = f.readline()
         while(s != '\n'):
@@ -68,7 +69,7 @@ def extract_data_from_single_file(path):
             D[target_channel][target_sample].append(v)
             s = f.readline()
         s = f.readline()
-        labels = extract_label(s)
+        labels = extract_labels(s)
     f.close()
     return D
     
@@ -99,6 +100,37 @@ def extract_datum(s):
     '''
     L = s.split('\t')
     return int(L[2])
+
+def combine_dictionaries(D1, D2):
+    '''
+    用以按顺序合并两个字典内容。
+    参数:
+        D1: 待合并字典
+        D2: 被合并字典
+    返回:
+        D1: 合并后的字典
+    '''
+    for channel in D1:
+        for sample in D1[channel]:
+            D1[channel][sample] += D2[channel][sample]
+    return D1
+
+def save_by_channel(D, folder='.', name='result', index=False):
+    '''
+    用以按荧光通道分别保存为csv文件。
+    参数:
+        D:      字典, 待保存
+        folder: 字符串, 目标目录
+        name:   字符串, 文件名
+        index:  是否保留序号
+    返回:
+        无
+    '''
+    for channel in D:
+        df = pd.DataFrame(D[channel])
+        file_name = os.path.join(folder, name+'-'+channel+'.csv')
+        df.to_csv(file_name, index=index)
+    
 
 if __name__ == '__main__':
     print(help(get_file_names))
