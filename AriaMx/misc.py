@@ -1,27 +1,32 @@
 import os
 import pandas as pd
 
-def get_file_names(directory='data', filter='.*'):
+def get_file_names(directory='data', filter='.*', order='default'):
     '''
     用以返回目标路径中所有符合后缀的文件列表。
     参数:
         directory:  字符串, 数据所在目录地址
         filter:     字符串, 过滤出含有所需后缀的文件
+        order:      字符串, 排序依据。default, 按名称排序, 短的在前。time, 按时间排序。
     返回:
         字符串列表, 文件名组成的列表
     '''
     for root, dirs, files in os.walk(directory, topdown=False):
         pass
-    
+    res = []
     if filter == '.*':
-        return sort_names(files)
+        res = files
     else:
-        res = []
         f_len = len(filter)
         for f in files:
             if f[-f_len:] == filter:
                 res.append(f)
+    if order == 'default':
         return sort_names(res)
+    elif order == 'time':
+        return sort_names_by_time(res, directory=directory)
+    else:
+        return res
         
 def sort_names(L):
     '''
@@ -33,6 +38,24 @@ def sort_names(L):
     '''
     res = sorted(L)
     res.sort(key=len)
+    return res
+    
+def sort_names_by_time(L, directory='.'):
+    '''
+    用以对列表中的文件按修改时间进行排序, 最新的排在前面。
+    参数:
+        L:          字符串列表, 待排序列表
+        directory:  字符串, 列表中文件所在目录
+    返回:
+        res:    字符串列表, 排序后的列表
+    '''
+    tmp = []
+    for item in L:
+        tmp.append(os.path.join(directory, item))
+    tmp.sort(key=os.path.getmtime, reverse=True)
+    res = []
+    for item in tmp:
+        res.append(item[len(directory)+1:])
     return res
     
 def extract_data_from_single_file(path):
@@ -134,3 +157,5 @@ def save_by_channel(D, folder='.', name='result', index=False):
 
 if __name__ == '__main__':
     print(help(get_file_names))
+    fs = get_file_names(directory='./data', filter='.txt', order='time')
+    print(fs)
