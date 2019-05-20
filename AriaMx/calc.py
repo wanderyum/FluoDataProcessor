@@ -1,5 +1,7 @@
 import pandas as pd
 import numpy as np
+from scipy.optimize import leastsq
+import matplotlib.pyplot as plt
 
 def align_data(arr, point=0):
     '''
@@ -28,7 +30,69 @@ def cdecay(p, x):
         y:  ndarray, 衰减曲线
     '''
     a, b, c, d = p
-    y = a*x + c*np.power(c, x) + b
+    y = a*x + c*np.power(d, x) + b
     return y
     
-print(type(np.array([1,2,3])))
+def fit_data(x, y, p0=None, mode='cdecay'):
+    
+    if mode == 'cdecay':
+        if not p0:
+            p0 = np.ones(4)
+        def func_error(p, y):
+            return y - cdecay(p, x)
+        def get_fitted_data(p, x):
+            return cdecay(p, x)
+    else:
+        raise Exception('Unknown mode name: {}'.format(mode))
+    
+    plsq = leastsq(func_error, p0, args=(y))[0]
+    fitted_data = get_fitted_data(plsq, x)
+    return (plsq, fitted_data)
+    
+def normalize_data(arr, p0=None, mode='cdecay', cut_data=False, point=0):
+    print(arr.shape)
+    if cut_data:
+        arr = arr[point:,:]
+    print(arr.shape)
+    r,c = arr.shape
+    x = np.linspace(0, r-1, r)
+    col = arr[:,0]
+    p, base = fit_data(x, col, p0=p0, mode=mode)
+    #compare_two_line(x, col, base)
+    for i in range(c):
+        arr[:,i] = arr[:,i] - base
+    return arr
+    
+    
+def compare_two_line(x, y, y_hat, figsize=(8,6)):
+    plt.figure(figsize=figsize)
+    plt.plot(x, y, label='y_fit', color='C0', linewidth=1)
+    plt.plot(x, y_hat, label='y', color='C1', linewidth=1)
+    plt.legend()
+    plt.show()
+
+
+if __name__ == '__main__':
+    
+    x = np.linspace(0, 15, 16)
+    x = x.reshape((2,8))
+    print(x)
+    column = x[:,0]
+    x[:,0] = column*2
+    print(x)
+    print(x.shape)
+    '''
+    x = np.linspace(0, 99, 100)
+    print('x shape:', x.shape)
+    pp = [3,20,1,1.01]
+    y = cdecay(pp, x)
+    print('y shape:', y.shape)
+    p0 = [-1,10,1,1]
+    p = fit_data(x, y, p0)
+    print('p:', p)
+    plt.figure(figsize=(8,6))
+    plt.plot(x, cdecay(p, x), label='y_fit', color='C0', linewidth=1)
+    plt.plot(x, cdecay(pp, x), label='y', color='C1', linewidth=1)
+    plt.legend()
+    plt.show()
+    '''

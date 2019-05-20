@@ -2,7 +2,7 @@ import os
 import pandas as pd
 import numpy as np
 from misc import get_file_names, extract_data_from_single_file, combine_dictionaries, save_by_channel
-from calc import align_data
+from calc import align_data, normalize_data
 from dataviewer import dataViewer
 
 folder = './data'
@@ -35,12 +35,20 @@ if process_data:
     df = pd.read_csv(os.path.join(folder, target))
     ### labels
     d = align_data(np.array(df), align_point)
+    p0 = [1,1,1,1]
+    d = normalize_data(d, p0=p0, mode='cdecay', cut_data=True, point=align_point)
     df = pd.DataFrame(d)
-    df.to_csv('result.csv', index=False)
+    df.to_csv('normalized.csv', index=False)
 
 # 可视化数据
 if view_data:
-    target = get_file_names(directory=folder, filter='.csv', order='time')[0]
+    if process_data:
+        target = 'normalized.csv'
+        path = os.path.join('.', target)
+    else:
+        target = get_file_names(directory=folder, filter='.csv', order='time')[0]
+        path = os.path.join(folder, target)
+    
     viewer = dataViewer()
-    viewer.import_data(path=os.path.join(folder, target))
+    viewer.import_data(path=path)
     viewer.mainloop()
