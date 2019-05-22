@@ -25,15 +25,27 @@ def cdecay(p, x):
             p[1] - b
             p[2] - c
             p[3] - d
-        x:  ndarray, 自变量取值
+        x:  ndarray(1D), 自变量取值
     返回:
-        y:  ndarray, 衰减曲线
+        y:  ndarray(1D), 衰减曲线
     '''
     a, b, c, d = p
     y = a*x + c*np.power(d, x) + b
     return y
     
 def fit_data(x, y, p0=None, mode='cdecay'):
+    '''
+    用以对实验数据进行拟合。
+    参数:
+        x:      ndarray(1D), 自变量取值
+        y:      ndarray(1D), 实验数据
+        p0:     列表, 初始参数取值
+        mode:   字符串, 拟合模式。 可选:
+                - cdecay, 带一次项的衰减曲线(默认)
+    返回:
+        plsq:           列表, 拟合得到的参数值
+        fitted_data：    ndarray(1D), 拟合得到的曲线
+    '''
     
     if mode == 'cdecay':
         if not p0:
@@ -50,10 +62,9 @@ def fit_data(x, y, p0=None, mode='cdecay'):
     return (plsq, fitted_data)
     
 def normalize_data(arr, p0=None, mode='cdecay', cut_data=False, point=0):
-    print(arr.shape)
+    
     if cut_data:
         arr = arr[point:,:]
-    print(arr.shape)
     r,c = arr.shape
     x = np.linspace(0, r-1, r)
     col = arr[:,0]
@@ -62,9 +73,18 @@ def normalize_data(arr, p0=None, mode='cdecay', cut_data=False, point=0):
     for i in range(c):
         arr[:,i] = arr[:,i] - base
     return arr
-    
-    
+      
 def compare_two_line(x, y, y_hat, figsize=(8,6)):
+    '''
+    用以对比实验曲线和拟合曲线差异。
+    参数:
+        x:          ndarray(1D), 自变量取值
+        y:          ndarray(1D), 实验数据
+        y_hat:      ndarray(1D), 拟合数据
+        figsize:    元组, 图片尺寸
+    返回:
+        None
+    '''
     plt.figure(figsize=figsize)
     plt.plot(x, y, label='y_fit', color='C0', linewidth=1)
     plt.plot(x, y_hat, label='y', color='C1', linewidth=1)
