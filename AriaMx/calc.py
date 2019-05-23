@@ -61,15 +61,27 @@ def fit_data(x, y, p0=None, mode='cdecay'):
     fitted_data = get_fitted_data(plsq, x)
     return (plsq, fitted_data)
     
-def normalize_data(arr, p0=None, mode='cdecay', cut_data=False, point=0):
-    
+def normalize_data(arr, p0=None, mode='cdecay', cut_data=False, point=0, show_base=False):
+    '''
+    用以拟合出基准曲线并令每条荧光曲线减去基准曲线。
+    参数:
+        arr:        ndarray, 待标准化数据
+        p0:         列表, 初始参数取值
+        mode:       字符串, 拟合模式。见fit_data函数。
+        cut_data:   布尔型, 是否截取数据。比如结果截取第point个数据点之后的数据。
+        point:      整数, 数据点。截取的起始点(序号从0开始, 截取时包括这个点)
+        show_base:  布尔型, 是否显示基准曲线与拟合曲线对比。
+    返回:
+        arr:        ndarray, 标准化后的数据
+    '''
     if cut_data:
         arr = arr[point:,:]
     r,c = arr.shape
     x = np.linspace(0, r-1, r)
     col = arr[:,0]
     p, base = fit_data(x, col, p0=p0, mode=mode)
-    #compare_two_line(x, col, base)
+    if show_base:
+        compare_two_line(x, col, base)
     for i in range(c):
         arr[:,i] = arr[:,i] - base
     return arr

@@ -8,7 +8,7 @@ from dataviewer import dataViewer
 folder = 'data/raw'
 pfolder = os.path.join(folder, '..')
 normalized_name = 'normalized.csv'
-align_point = 23
+align_point = 0
 
 #extract_data = True
 extract_data = False
@@ -35,9 +35,10 @@ if process_data:
     print(target)
     df = pd.read_csv(os.path.join(folder, target))
     labels = df.columns
+    labels = ['None', 'No Enz.', 'Enz. 0.01', 'Enz. 0.02', 'Enz. 0.05', 'Enz. 0.075', 'Enz. 0.1', 'Enz. 0.2']
     d = align_data(np.array(df), align_point)
     p0 = [1,1,1,1]
-    d = normalize_data(d, p0=p0, mode='cdecay', cut_data=True, point=align_point)
+    d = normalize_data(d, p0=p0, mode='cdecay', cut_data=True, point=align_point, show_base=True)
     df = pd.DataFrame(d, columns=labels)
     df.to_csv(os.path.join(pfolder, normalized_name), index=False)
 
