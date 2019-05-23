@@ -138,20 +138,24 @@ def combine_dictionaries(D1, D2):
             D1[channel][sample] += D2[channel][sample]
     return D1
 
-def save_by_channel(D, folder='.', name='result', index=False):
+def save_by_channel(D, folder='.', name='result', extra_label='', index=False):
     '''
     用以按荧光通道分别保存为csv文件。
     参数:
-        D:      字典, 待保存
-        folder: 字符串, 目标目录
-        name:   字符串, 文件名
-        index:  是否保留序号
+        D:              字典, 待保存
+        folder:         字符串, 目标目录
+        name:           字符串, 文件名
+        extra_label:    字符串, 加在名称里用于区分文件
+        index:          是否保留序号
     返回:
         无
     '''
     for channel in D:
         df = pd.DataFrame(D[channel])
-        file_name = os.path.join(folder, name+'-'+channel+'.csv')
+        if extra_label:
+            file_name = os.path.join(folder, name+'-'+channel+'-'+extra_label+'.csv')
+        else:
+            file_name = os.path.join(folder, name+'-'+channel+'.csv')
         df.to_csv(file_name, index=index)
     
 
