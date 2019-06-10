@@ -98,14 +98,68 @@ def compare_two_line(x, y, y_hat, figsize=(8,6)):
         None
     '''
     plt.figure(figsize=figsize)
-    plt.plot(x, y, label='y_fit', color='C0', linewidth=1)
-    plt.plot(x, y_hat, label='y', color='C1', linewidth=1)
+    plt.plot(x, y, label='y', color='C0', linewidth=1)
+    plt.plot(x, y_hat, label='y_fit', color='C1', linewidth=1)
     plt.legend()
     plt.show()
-
+    
+def cut_data(L, point=None):
+    res = []
+    if point:
+        for arr in L:
+            res.append(arr[:point,:])
+    else:
+        min_r = L[0].shape[0]
+        for arr in L:
+            r, c = arr.shape
+            if r < min_r:
+                min_r = r
+        for arr in L:
+            res.append(arr[:min_r,:])
+    return res
+    
+def statistic_result(L):
+    n = len(L)
+    data_matrix = L[0]
+    for arr in L[1:]:
+        data_matrix = np.hstack([data_matrix, arr])
+    m = data_matrix.shape[1] // n
+    L_mean = []
+    L_std = []
+    for i in range(m):
+        tmp = data_matrix[:,i::m]
+        L_mean.append(np.mean(data_matrix[:,i::m], axis=1, keepdims=True))
+        L_std.append(np.std(data_matrix[:,i::m], axis=1, keepdims=True))
+    matrix_mean = L_mean[0]
+    matrix_std = L_std[0]
+    for i in range(1, m):
+        matrix_mean = np.hstack([matrix_mean, L_mean[i]])
+        matrix_std = np.hstack([matrix_std, L_std[i]])
+        
+    return matrix_mean, matrix_std
+    
+def normalize_data_set(L):
+    auxi = []
+    for arr in L:
+        auxi.append(np.sum(arr))
+    mx = max(auxi)
+    for i in range(len(auxi)):
+        L[i] = L[i] * mx / auxi[i]
+    return L
 
 if __name__ == '__main__':
-    
+    a = np.array([1,5,1,5]).reshape((2,2))
+    b = np.array([2,6,2,6]).reshape((2,2))
+    c = np.array([3,7,3,7]).reshape((2,2))
+    d = [a,b,c]
+    print(a)
+    print(b)
+    print(c)
+    mn, std = statistic_result(d)
+    print(mn)
+    print(std)
+
+    '''
     x = np.linspace(0, 15, 16)
     x = x.reshape((2,8))
     print(x)
@@ -113,6 +167,7 @@ if __name__ == '__main__':
     x[:,0] = column*2
     print(x)
     print(x.shape)
+    '''
     '''
     x = np.linspace(0, 99, 100)
     print('x shape:', x.shape)

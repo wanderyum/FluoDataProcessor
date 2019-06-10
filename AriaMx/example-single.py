@@ -9,7 +9,7 @@ folder = 'data/raw'
 pfolder = os.path.join(folder, '..')
 extract_label = 'extracted'
 normalize_label = 'normalized'
-align_point = 13
+align_point = 0
 
 extract_data = True
 extract_data = False

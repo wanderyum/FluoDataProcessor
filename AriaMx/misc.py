@@ -1,5 +1,6 @@
 import os
 import pandas as pd
+from dataviewer import dataViewer
 
 def get_file_names(directory='data', filter='.*', order='default'):
     '''
@@ -158,6 +159,8 @@ def save_by_channel(D, folder='.', name='result', extra_label='', index=False):
             file_name = os.path.join(folder, name+'-'+channel+'.csv')
         df.to_csv(file_name, index=index)
     
+def view_data(df):
+    pass
 
 if __name__ == '__main__':
     print(help(get_file_names))
