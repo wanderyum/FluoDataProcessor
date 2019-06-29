@@ -138,27 +138,37 @@ def combine_dictionaries(D1, D2):
             D1[channel][sample] += D2[channel][sample]
     return D1
 
-def save_by_channel(D, folder='.', name='result', extra_label='', index=False):
+def save_by_channel(D, folder='.', name='result', prefix='', postfix='', index=False):
     '''
     用以按荧光通道分别保存为csv文件。
     参数:
-        D:              字典, 待保存
-        folder:         字符串, 目标目录
-        name:           字符串, 文件名
-        extra_label:    字符串, 加在名称里用于区分文件
-        index:          是否保留序号
+        D:          字典, 待保存
+        folder:     字符串, 目标目录
+        name:       字符串, 文件名
+        prefix:     字符串, 加在名称前用于区分文件
+        postfix:    字符串, 加在名称后用于区分文件
+        index:      布尔型, 是否保留序号
     返回:
-        无
+        target:     字符串, 保存的文件的完整路径
     '''
+    target_files = []
     for channel in D:
         df = pd.DataFrame(D[channel])
-        if extra_label:
-            file_name = os.path.join(folder, name+'-'+channel+'-'+extra_label+'.csv')
-        else:
-            file_name = os.path.join(folder, name+'-'+channel+'.csv')
+        
+        file_name = os.path.join(folder, generate_name(name=name, channel=channel, prefix=prefix, postfix=postfix))
+        
         df.to_csv(file_name, index=index)
+        target_files.append(file_name)
+    return target_files
     
-
+def generate_name(name, channel, prefix, postfix):
+    name = name + '-' + channel
+    if prefix:
+        name = prefix + '-' + name
+    if postfix:
+        name = name + '-' + postfix
+    name = name + '.csv'
+    return name
 
 if __name__ == '__main__':
     print(help(get_file_names))

@@ -1,8 +1,10 @@
 import os
+import sys
 import pandas as pd
 import numpy as np
 from misc import get_file_names, extract_data_from_single_file, combine_dictionaries, save_by_channel
 from calc import align_data, normalize_data
+sys.path.append('..')
 from dataviewer import dataViewer
 
 folder = 'data/raw'
@@ -12,10 +14,10 @@ normalize_label = 'normalized'
 align_point = 0
 
 extract_data = True
-extract_data = False
+#extract_data = False
 
 process_data = True
-#process_data = False
+process_data = False
 
 view_data = True
 
@@ -54,5 +56,5 @@ if view_data:
     path = os.path.join(pfolder, target)
     
     viewer = dataViewer()
-    viewer.import_data(path=path)
+    viewer.load_csv(path=path)
     viewer.mainloop()
