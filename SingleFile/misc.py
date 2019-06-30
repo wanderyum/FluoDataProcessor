@@ -58,7 +58,7 @@ def sort_names_by_time(L, directory='.'):
         res.append(item[len(directory)+1:])
     return res
     
-def extract_data_from_single_file(path):
+def agilent_extract_data_from_single_file(path):
     '''
     用以从单个.txt文件中提取荧光通道、孔道、荧光值等数据。
     参数:
