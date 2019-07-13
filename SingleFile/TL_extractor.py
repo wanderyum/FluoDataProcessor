@@ -20,6 +20,10 @@ class data_extractor():
             D = combine_dictionaries(D, extract_data_from_single_file(os.path.join(folder,f)))
         self.target_files = save_by_channel(D, folder=self.output_folder, name=files[0][:8], prefix=self.prefix, postfix=self.postfix, index=False)
     '''
+    
+    def extract_from_dat_file(self):
+        
+    
     def get_dat_file(self, folder, sleep_time):
         pcr_file = get_file_names(folder, filter='.pcr')[0]
         cmd_run_TC = 'start /b '+self.two_channel_path+' '+os.path.join(folder, pcr_file)
@@ -47,4 +51,5 @@ if __name__ == '__main__':
     folder = 'raw_data'
     TwoChannelPath = 'E:\TianLongPCR2\TwoChannel.exe'
     de = data_extractor(TwoChannelPath, output_folder=folder)
-    de.get_dat_file(folder, 1)
+    #de.get_dat_file(folder, 1)
+    

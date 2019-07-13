@@ -124,6 +124,8 @@ def extract_datum(s):
     L = s.split('\t')
     return int(L[2])
 
+def TL_extract_data_from_dat():
+    
 def combine_dictionaries(D1, D2):
     '''
     用以按顺序合并两个字典内容。
