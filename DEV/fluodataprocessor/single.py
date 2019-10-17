@@ -30,7 +30,7 @@ class singlefluoprocessor():
 
 if __name__ == '__main__':
     sfp = singlefluoprocessor()
-    d = r'E:\Manfredo\ScientificResearch\PolymeraseDisplacement\ExperimentalData\Fluo\20190929'
+    d = r'D:\Manfredo\ScientificResearch\PolymeraseDisplacement\ExperimentalData\Fluo\20190929'
     target_holes = 'A3-12, B3-B12'
     print(sfp.extract_data(d, 'TL988', 'ALL', target_holes))
     #print(sfp.data)

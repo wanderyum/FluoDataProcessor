@@ -135,12 +135,14 @@ def extract_data_TL988(directory, channel, holes):
             f.readline()
         for i in range(48):
             n, c1, c2 = get_name_and_value(f)
-            names.append(n)
-            channel_0.append(c1)
-            channel_1.append(c2)
-            
-    D['channel_0'] = pd.DataFrame(np.array(channel_0).T, columns=names)
-    D['channel_1'] = pd.DataFrame(np.array(channel_1).T, columns=names)
+            if n in target_holes:
+                names.append(n)
+                channel_0.append(c1)
+                channel_1.append(c2)
+    if channel.upper() == 'ALL':
+        D['channel_0'] = pd.DataFrame(np.array(channel_0).T, columns=names)
+        D['channel_1'] = pd.DataFrame(np.array(channel_1).T, columns=names)
+    elif 
     return D
     
         
