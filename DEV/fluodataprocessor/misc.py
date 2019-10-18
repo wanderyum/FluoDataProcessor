@@ -15,6 +15,8 @@ def get_file_names(directory='data', filter='.*', order='default'):
     返回:
         字符串列表, 文件名组成的列表
     '''
+    if not os.path.exists(directory):
+        raise Exception('Target directory does not exist!')
     for root, dirs, files in os.walk(directory, topdown=False):
         pass
     res = []
@@ -106,6 +108,16 @@ def resolve_string(s):
     else:
         return [s]
     
+def get_date(directory, kind):
+    if kind.upper() == 'TL988':
+        fs = get_file_names(directory=directory, filter='.dat')
+        try:
+            int(fs[-1][:-4])
+        except:
+            return
+        else:
+            return fs[-1][:-4]
+
 #################
 # TL988相关函数 #
 #################
@@ -117,7 +129,8 @@ def extract_data_TL988(directory, channel, holes):
     channel:    字符串'ALL'或包含所观察荧光通道的字符串列表。
     holes:      字符串'ALL'或包含所观察孔道的字符串列表。
     返回:
-    以下格式的字典:
+    若channel为'FAM'/'HEX'/'channel_0'/'channel_1'则返回DataFrame。
+    若channel为'ALL'则返回以下格式的字典:
     D(字典) --- channel_0(DataFrame)
              |      
              -- channel_1(DataFrame)
@@ -140,12 +153,14 @@ def extract_data_TL988(directory, channel, holes):
                 channel_0.append(c1)
                 channel_1.append(c2)
     if channel.upper() == 'ALL':
-        D['channel_0'] = pd.DataFrame(np.array(channel_0).T, columns=names)
-        D['channel_1'] = pd.DataFrame(np.array(channel_1).T, columns=names)
-    elif 
-    return D
+        D['channel_0'] = pd.DataFrame(np.array(channel_0).T, columns=names).sort_index(axis=1,ascending=True)
+        D['channel_1'] = pd.DataFrame(np.array(channel_1).T, columns=names).sort_index(axis=1,ascending=True)
+        return D
+    elif channel.upper() == 'FAM' or channel.upper() == 'CHANNEL_0':
+        return pd.DataFrame(np.array(channel_0).T, columns=names).sort_index(axis=1,ascending=True)
+    elif channel.upper() == 'HEX' or channel.upper() == 'CHANNEL_1':
+        return pd.DataFrame(np.array(channel_1).T, columns=names).sort_index(axis=1,ascending=True)
     
-        
 def get_name_and_value(f):
     name_ = f.readline()
     name = name_[8:-2]

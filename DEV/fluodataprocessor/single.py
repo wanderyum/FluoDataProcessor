@@ -1,3 +1,6 @@
+import pandas as pd
+import os
+
 if __name__ == '__main__':
     import misc as m
 else:
@@ -5,7 +8,8 @@ else:
     
 class singlefluoprocessor():
     def __init__(self):
-        pass
+        self.dir = None
+        self.date = None
     
     def extract_data(self, directory, kind, channel, holes):
         '''
@@ -15,22 +19,57 @@ class singlefluoprocessor():
         kind:       字符串, 荧光机器型号, 如AriaMx/TL988。
         channel:    字符串'ALL'或包含所观察荧光通道的字符串列表。
         holes:      字符串'ALL'或包含所观察孔道的字符串列表。
-        输出:
-        ???
+        返回:
+        若channel为'FAM'/'HEX'/'channel_0'/'channel_1'则返回DataFrame。
+        若channel为'ALL'则返回以下格式的字典:
+        D(字典) --- channel_0(DataFrame)
+                 |      
+                 -- channel_1(DataFrame)
         '''
         self.dir = directory
+
         res = None
+        self.date = m.get_date(directory=directory, kind=kind)
         if kind.upper() == 'TL988':
             res = m.extract_data_TL988(directory=directory, channel=channel, holes=holes)
         elif kind.upper() == 'ARIAMX':
             pass
         self.data = res
         return res
+        
+    def save_data(self, data=None, target_folder=None, name=None, index=False, scheme=None):
+        '''
+        '''
 
+        if type(data) == type(None) and type(self.data) != type(None):
+            data = self.data
+        if type(target_folder) == type(None) and type(self.dir) != type(None):
+            target_folder = self.dir
+        if type(name) == type(None) and type(self.date) != type(None):
+            name = self.date+'.csv'
+        elif type(name) == type(None) and type(self.date) == type(None):
+            name = 'result.csv'
+        
+        if type(data) == type({'a': 1}):
+            if type(scheme) == type(None):
+                for key in data:
+                    data[key].to_csv(os.path.join(target_folder, key+'-'+name), index=index)
+            elif scheme.upper() == 'MANFREDO':
+                pass
+        elif type(data) == type(pd.DataFrame([])):
+            if type(scheme) == type(None):
+                data.to_csv(os.path.join(target_folder, name), index=index)
+            elif scheme.upper() == 'MANFREDO':
+                lh = ['A3-10', 'B3-10', 'B13-20', 'A13-20']
+                lp = ['-1', '-2', '-3', '-OneDay']
+                for i in range(len(lh)):
+                    holes = m.resolve_holes(lh[i])
+                    data.to_csv(os.path.join(target_folder, name[:-4]+lp[i]+'.csv'), index=index, columns=holes)
 
 if __name__ == '__main__':
     sfp = singlefluoprocessor()
-    d = r'D:\Manfredo\ScientificResearch\PolymeraseDisplacement\ExperimentalData\Fluo\20190929'
-    target_holes = 'A3-12, B3-B12'
-    print(sfp.extract_data(d, 'TL988', 'ALL', target_holes))
+    d = r'E:\Manfredo\ScientificResearch\PolymeraseDisplacement\ExperimentalData\Fluo\20190929'
+    target_holes = 'A3-10, A13-A20, B3-B10, B13-20'
+    print(sfp.extract_data(d, 'TL988', 'Fam', target_holes))
+    sfp.save_data(scheme='manfredo')
     #print(sfp.data)
