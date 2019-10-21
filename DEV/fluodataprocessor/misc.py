@@ -78,21 +78,28 @@ def combine_dicts(D1, D2):
             D1[channel][sample] += D2[channel][sample]
     return D1
     
-def resolve_holes(holes):
-    if type(holes) == type(''):
-        res = []
-        if holes.upper() == 'ALL':
+def resolve_holes(description):
+    '''
+    用以通过给定孔道描述生成包含孔道的列表。例如, 输入"A1-3"则返回['A1','A2','A3']。
+    输入:
+    description:    字符串, 孔道孔道描述。
+    返回:
+    holes:          字符串列表, 包含各孔道的列表。
+    '''
+    if type(description) == type(''):
+        holes = []
+        if description.upper() == 'ALL':
             for i in range(1,25):
                 res.append('A'+str(i))
                 res.append('B'+str(i))
         else:
-            items = holes.replace(' ', '')
+            items = description.replace(' ', '')
             items = items.split(',')
             for item in items:
-                res += resolve_string(item)
-        return res
-    elif type(holes) == type([]):
+                holes += resolve_string(item)
         return holes
+    elif type(description) == type([]):
+        return description
         
 def resolve_string(s):
     if '-' in s:
@@ -109,6 +116,14 @@ def resolve_string(s):
         return [s]
     
 def get_date(directory, kind):
+    '''
+    用以得到实验日期。
+    输入:
+    directory:  字符串, 数据文件所在文件夹路径。
+    kind:       字符串, 类型，如TL988等。
+    返回:
+    若解析成功则返回类似20190101的字符串, 若失败返回None。
+    '''
     if kind.upper() == 'TL988':
         fs = get_file_names(directory=directory, filter='.dat')
         try:
@@ -180,8 +195,5 @@ def parse_fluo(s):
     return L
     
 if __name__ == '__main__':
-    a = 'B'
-    print(a >= '0' and a <= '9')
-    print('0'<'9')
-    print(resolve_string('B2-B5'))
+    print(resolve_string('B2-5'))
     

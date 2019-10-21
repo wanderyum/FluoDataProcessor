@@ -33,12 +33,20 @@ class singlefluoprocessor():
         if kind.upper() == 'TL988':
             res = m.extract_data_TL988(directory=directory, channel=channel, holes=holes)
         elif kind.upper() == 'ARIAMX':
+            # to be continued
             pass
         self.data = res
         return res
         
-    def save_data(self, data=None, target_folder=None, name=None, index=False, scheme=None):
+    def save_data(self, data=None, target_folder=None, name=None, index=False, preset=None):
         '''
+        用来将DataFrame数据保存至csv文件中。
+        输入:
+        data:           DataFrame数据, 若未指定, 则采用singlefluoprocessor.data的数据。
+        target_folder:  字符串, csv文件保存的文件夹, 若未指定, 则采用singlefluoprocessor.dir。
+        name:           字符串, csv文件的文件名, 包含.csv。若未指定并且存在singlefluoprocessor.data, 否则采用result.csv。
+        index:          布尔, 保存的csv文件是否包含索引, 默认不包含。
+        preset:         字符串, 预设保存方式。默认将所有数据保存到一张csv中。
         '''
 
         if type(data) == type(None) and type(self.data) != type(None):
@@ -57,9 +65,9 @@ class singlefluoprocessor():
             elif scheme.upper() == 'MANFREDO':
                 pass
         elif type(data) == type(pd.DataFrame([])):
-            if type(scheme) == type(None):
+            if type(preset) == type(None):
                 data.to_csv(os.path.join(target_folder, name), index=index)
-            elif scheme.upper() == 'MANFREDO':
+            elif preset.upper() == 'MANFREDO':
                 lh = ['A3-10', 'B3-10', 'B13-20', 'A13-20']
                 lp = ['-1', '-2', '-3', '-OneDay']
                 for i in range(len(lh)):
