@@ -2,10 +2,17 @@ import sys
 import shutil
 import os
 
+if sys.platform == 'linux':
+    os.chdir(os.path.dirname(sys.argv[0]))
+
 def find_sitepackages():
     if sys.platform == 'win32':
         for item in sys.path[::-1]:
             if 'site-packages' in item:
+                return item
+    elif sys.platform == 'linux':
+        for item in sys.path[::-1]:
+            if '/home/' in item and 'site-packages' in item:
                 return item
                 
 def get_version(path):
