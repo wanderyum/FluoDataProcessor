@@ -59,11 +59,16 @@ class singlefluoprocessor():
             name = 'result.csv'
         
         if type(data) == type({'a': 1}):
-            if type(scheme) == type(None):
+            if type(preset) == type(None):
                 for key in data:
                     data[key].to_csv(os.path.join(target_folder, key+'-'+name), index=index)
-            elif scheme.upper() == 'MANFREDO':
-                pass
+            elif preset.upper() == 'MANFREDO':
+                lh = ['A3-10', 'B3-10', 'B13-20', 'A13-20']
+                lp = ['-1', '-2', '-3', '-OneDay']
+                for key in data:
+                    for i in range(len(lh)):
+                        holes = m.resolve_holes((lh[i]))
+                        data[key].to_csv(os.path.join(target_folder, name[:-4]+lp[i]+'-'+key+'.csv'), index=index, columns=holes)
         elif type(data) == type(pd.DataFrame([])):
             if type(preset) == type(None):
                 data.to_csv(os.path.join(target_folder, name), index=index)
