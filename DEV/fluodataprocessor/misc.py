@@ -134,6 +134,26 @@ def get_date(directory, kind):
             return fs[-1][:-4]
 
 #################
+# Calibrate函数 #
+#################
+def calc_coef(df):
+    arr = np.array(df.iloc[:])
+    print(arr)
+    sum_r = np.sum(arr, axis=1, keepdims=True)
+    mx = np.max(sum_r)
+    coef_r = sum_r / mx
+    arr = arr / coef_r
+    print(arr)
+    mean_c = np.mean(arr, axis=0, keepdims=True)
+    if arr.shape[0] >= 3:
+        pass # 计算标准误
+    max_col = np.max(mean_c)
+    coef_col = mean_c / max_col
+    pdr = pd.DataFrame(coef_col, columns=df.columns)
+    print(pdr)
+
+
+#################
 # TL988相关函数 #
 #################
 def extract_data_TL988(directory, channel, holes):
@@ -195,5 +215,7 @@ def parse_fluo(s):
     return L
     
 if __name__ == '__main__':
-    print(resolve_string('B2-5'))
+    #print(resolve_string('B2-5'))
+    df = pd.read_csv('calib.csv')
+    calc_coef(df)
     
