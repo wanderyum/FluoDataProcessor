@@ -2,9 +2,9 @@ import os
 import numpy as np
 import pandas as pd
 
-############
-# 通用函数 #
-############
+#################
+# 通用函数-杂项 #
+#################
 def get_file_names(directory='data', filter='.*', order='default'):
     '''
     用以返回目标路径中所有符合后缀的文件列表。
@@ -132,26 +132,89 @@ def get_date(directory, kind):
             return
         else:
             return fs[-1][:-4]
+            
+def df2dic(df):
+    D = {}
+    for key in df.columns:
+        D[key] = np.array(df0[key])[0]
+    return D
+
+def find_sitepackages():
+    '''
+    用以寻找site-packages文件夹。
+    返回:     字符串, site-packages文件夹路径
+    '''
+    import sys
+    if sys.platform == 'win32':
+        for item in sys.path[::-1]:
+            if item[-13:] == 'site-packages':
+                return item
+    elif sys.platform == 'linux':
+        for item in sys.path[::-1]:
+            if '/home/' in item and 'site-packages' in item and item[-13:] == 'site-packages':
+                return item
+
+#################
+# 通用函数-计算 #
+#################
+def find_inflection_point(arr2d, rate=0.3):
+    l = arr2d.shape[1]
+    if l < 5:
+        return -1
+    for i in range(l-4):
+        mean_tmp = np.mean(arr2d[:, i:i+4], axis=1)
+        for j in range(arr2d.shape[0]):
+            if arr2d[j, i+4] > mean_tmp[j] * (1+rate):
+                return i+3
+            elif arr2d[j, i+4] < mean_tmp[j] * (1-rate):
+                return i+3
+    return -1
+
 
 #################
 # Calibrate函数 #
 #################
 def calc_coef(df):
     arr = np.array(df.iloc[:])
-    print(arr)
+    #print(arr)
     sum_r = np.sum(arr, axis=1, keepdims=True)
     mx = np.max(sum_r)
     coef_r = sum_r / mx
     arr = arr / coef_r
-    print(arr)
+    #print(arr)
     mean_c = np.mean(arr, axis=0, keepdims=True)
     if arr.shape[0] >= 3:
         pass # 计算标准误
     max_col = np.max(mean_c)
     coef_col = mean_c / max_col
     pdr = pd.DataFrame(coef_col, columns=df.columns)
-    print(pdr)
-
+    return pdr
+    
+def load_coef(channel, directory=None):
+    if directory is None:
+        directory = default_calib_dir()
+    target = None
+    fs = get_file_names(directory=directory, filter='.csv')
+    for item in fs:
+        if '-'+channel+'.' in item:
+            target = os.path.join(directory, item)
+    
+    if target:
+        df = pd.read_csv(target)
+        df_coef = calc_coef(df)
+        return df2dic(df_coef)
+        
+def compensate_data(df, preprocessed=False):
+    '''
+    用于对于数据进行测量误差补偿。
+    输入:
+    df:     DataFrame, 待补偿数据
+    preprocessed:   布尔型, False代表未进行预处理, 需要进行预处理。
+    '''
+    pass
+    
+def default_calib_dir():
+    return os.path.join(find_sitepackages(), 'fluodataprocessor')
 
 #################
 # TL988相关函数 #
@@ -216,6 +279,9 @@ def parse_fluo(s):
     
 if __name__ == '__main__':
     #print(resolve_string('B2-5'))
-    df = pd.read_csv('calib.csv')
-    calc_coef(df)
+    df = pd.read_csv(r'C:\Users\admin\AppData\Local\Programs\Python\Python36\Lib\site-packages\fluodataprocessor\calib-channel_1.csv')
+    df0 = calc_coef(df)
+    print(df0,'\n')
+
+    print(load_coef('channel_1'))
     

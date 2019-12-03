@@ -6,13 +6,18 @@ if sys.platform == 'linux':
     os.chdir(os.path.dirname(sys.argv[0]))
 
 def find_sitepackages():
+    '''
+    用以寻找site-packages文件夹。
+    返回:     字符串, site-packages文件夹路径
+    '''
+    import sys
     if sys.platform == 'win32':
         for item in sys.path[::-1]:
-            if 'site-packages' in item:
+            if item[-13:] == 'site-packages':
                 return item
     elif sys.platform == 'linux':
         for item in sys.path[::-1]:
-            if '/home/' in item and 'site-packages' in item:
+            if '/home/' in item and 'site-packages' in item and item[-13:] == 'site-packages':
                 return item
                 
 def get_version(path):
