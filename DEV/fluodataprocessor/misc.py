@@ -5,7 +5,7 @@ import pandas as pd
 #################
 # 通用函数-杂项 #
 #################
-def get_file_names(directory='data', filter='.*', order='default'):
+def get_file_names(directory='data', filter='.*', order='default', with_folder=False):
     '''
     用以返回目标路径中所有符合后缀的文件列表。
     参数:
@@ -27,12 +27,28 @@ def get_file_names(directory='data', filter='.*', order='default'):
         for f in files:
             if f[-f_len:] == filter:
                 res.append(f)
+    if with_folder:
+        res = add_folder(directory, res)
     if order == 'default':
         return sort_names(res)
     elif order == 'time':
         return sort_names_by_time(res, directory=directory)
     else:
         return res
+        
+def add_folder(folder, list_files):
+    res = []
+    for item in list_files:
+        res.append(os.path.join(folder, item))
+    return res
+        
+def get_file_names_with_key(directory, filter, key, with_folder=False):
+    res = []
+    tmp = get_file_names(directory=directory, filter=filter, with_folder=with_folder)
+    for item in tmp:
+        if key in item:
+            res.append(item)
+    return res
         
 def sort_names(L):
     '''
@@ -193,24 +209,38 @@ def calc_coef(df):
 def load_coef(channel, directory=None):
     if directory is None:
         directory = default_calib_dir()
-    target = None
-    fs = get_file_names(directory=directory, filter='.csv')
-    for item in fs:
-        if '-'+channel+'.' in item:
-            target = os.path.join(directory, item)
+    targets = get_file_names_with_key(directory=directory, filter='.csv', key='-'+channel+'.', with_folder=True)
     
-    if target:
-        df = pd.read_csv(target)
-        df_coef = calc_coef(df)
-        return df2dic(df_coef)
+    if not targets:
+        raise Exception('Cannot find coef file!')
+    df = pd.read_csv(targets[0])
+    df_coef = calc_coef(df)
+    return df2dic(df_coef)
         
-def compensate_data(df, preprocessed=False):
+def compensate_df(df, channel='channel_0', preprocessed=False, ip=None):
     '''
     用于对于数据进行测量误差补偿。
     输入:
     df:     DataFrame, 待补偿数据
     preprocessed:   布尔型, False代表未进行预处理, 需要进行预处理。
     '''
+    if not preprocessed:
+        df1, inflection_point = preprocess_data(df)
+    else:
+        df1 = df
+        inflection_point = find_inflection_point(np.array(df1.iloc[:]).T)
+    if ip:
+        inflection_point = ip
+    D_coef = load_coef(channel=channel)
+    arr = np.array(df1.iloc[:]).T
+    # 在拐点处对齐
+    for i in range(arr.shape[0]):
+        arr[i,:] = arr[i,:] - arr[i, inflection_point]
+    print(arr)
+    
+    
+    
+def preprocess_data(df):
     pass
     
 def default_calib_dir():
@@ -279,9 +309,11 @@ def parse_fluo(s):
     
 if __name__ == '__main__':
     #print(resolve_string('B2-5'))
-    df = pd.read_csv(r'C:\Users\admin\AppData\Local\Programs\Python\Python36\Lib\site-packages\fluodataprocessor\calib-channel_1.csv')
+    df = pd.read_csv(os.path.join(default_calib_dir(), r'calib-channel_1.csv'))
     df0 = calc_coef(df)
     print(df0,'\n')
 
     print(load_coef('channel_1'))
+    df1 = pd.read_csv()
+    compensate_df(df1, channel='channel_1', preprocessed=True)
     

@@ -63,17 +63,13 @@ class calib():
         
 
 if __name__ == '__main__':
-    data_folder = r'E:\Manfredo\ScientificResearch\PolymeraseDisplacement\ExperimentalData\Fluo\20191112-std'
+    #data_folder = r'E:\Manfredo\ScientificResearch\PolymeraseDisplacement\ExperimentalData\Fluo\20191112-std'
     output_folder = '.'
     cal = calib()
-    cal.load_folder(data_folder, key='channel_1')
-    target = cal.files[0]
-    print(target)
-    df1 = cal.compute_R(target)
-    mfolder = r'E:\Manfredo'
-    folder1 = os.path.join(mfolder, 'ScientificResearch\PolymeraseDisplacement\ExperimentalData\Fluo\20191112-std')
-    folder2 = os.path.join(mfolder, 'ScientificResearch\PolymeraseDisplacement\ExperimentalData\Fluo\20191115-std')
-    folder3 = os.path.join(mfolder, 'ScientificResearch\PolymeraseDisplacement\ExperimentalData\Fluo\20191202-std')
+    mfolder = r'D:\Manfredo'
+    folder1 = os.path.join(mfolder, r'ScientificResearch\PolymeraseDisplacement\ExperimentalData\Fluo\20191112-std')
+    folder2 = os.path.join(mfolder, r'ScientificResearch\PolymeraseDisplacement\ExperimentalData\Fluo\20191115-std')
+    folder3 = os.path.join(mfolder, r'ScientificResearch\PolymeraseDisplacement\ExperimentalData\Fluo\20191202-std')
     tmp = [folder1, folder2, folder3]
     cal.calib(tmp, channel='channel_1')
     
