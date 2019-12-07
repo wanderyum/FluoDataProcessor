@@ -1,6 +1,7 @@
+import os
 import numpy as np
 import pandas as pd
-import os
+import matplotlib.pyplot as plt
 
 if __name__ == '__main__':
     import misc as m
@@ -60,16 +61,45 @@ class calib():
         print('Directory:\t{}'.format(directory))
         df = self.compute_alpha(list_source_folders, channel=channel)
         df.to_csv(os.path.join(directory, 'calib-'+channel+'.csv'), index=False)
+    
+    def show_bar_plot(self, channel, directory=None):
+        if directory is None:
+            directory = m.default_calib_dir()
+        if os.path.exists(os.path.join(directory, 'calib-'+channel+'.csv')):
+            df = pd.read_csv(os.path.join(directory, 'calib-'+channel+'.csv'))
+            arr = df.iloc[:]
+            arr_mean = np.mean(arr, axis=0)
+            arr_std = np.std(arr, axis=0)
+            arr_se = arr_std / np.sqrt(arr.shape[0])
+            
+            ind = np.arange(len(df.columns))
+            width = 0.4
+            
+            plt.figure()
+
+            plt.bar(ind, arr_mean, width, yerr=arr_se)
+            plt.ylabel('Fluorescence intensity (a.u.)')
+            plt.title('Calibration: {}'.format(channel))
+            plt.xticks(ind, df.columns)
+            
+            plt.show()
+            
+        else:
+            raise Exception('No calibrate file!')
+        
         
 
 if __name__ == '__main__':
     #data_folder = r'E:\Manfredo\ScientificResearch\PolymeraseDisplacement\ExperimentalData\Fluo\20191112-std'
     output_folder = '.'
     cal = calib()
-    mfolder = r'D:\Manfredo'
+    '''
+    mfolder = r'E:\Manfredo'
     folder1 = os.path.join(mfolder, r'ScientificResearch\PolymeraseDisplacement\ExperimentalData\Fluo\20191112-std')
     folder2 = os.path.join(mfolder, r'ScientificResearch\PolymeraseDisplacement\ExperimentalData\Fluo\20191115-std')
     folder3 = os.path.join(mfolder, r'ScientificResearch\PolymeraseDisplacement\ExperimentalData\Fluo\20191202-std')
     tmp = [folder1, folder2, folder3]
     cal.calib(tmp, channel='channel_1')
+    '''
+    cal.show_bar_plot(channel='channel_1')
     
