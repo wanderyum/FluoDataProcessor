@@ -358,7 +358,7 @@ def compensate_df(df, channel='channel_0', preprocessed=False, ip=None, compensa
 
     df_res = pd.DataFrame(arr.T, columns=df1.columns)
     
-    return df_res
+    return df_res, inflection_point
     
 
 def preprocess_data(df):
@@ -377,15 +377,20 @@ def gen_label_template(path, name='labels.csv', num_slot=8):
 def default_calib_dir():
     return os.path.join(find_sitepackages(), 'fluodataprocessor')
 
-def calibrate_folder(folder, channel, preprocessed=False, gen_label=True, show_result=False, preset='manfredo', ip=None, compensate_separately=True, save=False, show_fit=False):
+def calibrate_folder(   folder, channel, 
+                        preprocessed=False, gen_label=True, show_result=False, 
+                        preset='manfredo', ip=None, compensate_separately=True, prelude='All', 
+                        save=False, show_fit=False):
     fs = get_file_names_with_key(folder, filter='.csv', key=channel, with_folder=True)
     fs = list_filter_reversed(fs, key='calib')
     if preset == 'manfredo':
         fs = list_filter_reversed(fs, key='OneDay')
     for item in fs:
         df = pd.read_csv(item)
-        df1 = compensate_df(df, channel=channel, preprocessed=preprocessed, ip=ip, compensate_separately=compensate_separately, show_fit=show_fit)
+        df1, inflection_point = compensate_df(df, channel=channel, preprocessed=preprocessed, ip=ip, compensate_separately=compensate_separately, show_fit=show_fit)
         if save:
+            if str(prelude).upper() != 'ALL':
+                df1 = df1.iloc[inflection_point-prelude:, :]
             df1.to_csv(rename_calib(item), index=False)
         else:
             if show_result:
