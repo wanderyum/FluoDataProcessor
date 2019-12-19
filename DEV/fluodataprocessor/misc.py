@@ -312,11 +312,11 @@ def load_coef(channel, directory=None):
     df_coef = calc_coef(df)
     return df2dic(df_coef)
         
-def compensate_df(df, channel='channel_0', preprocessed=False, ip=None, show_fit=False):
+def compensate_df(df, channel='channel_0', preprocessed=False, ip=None, compensate_separately=True, show_fit=False):
     '''
     用于对于数据进行测量误差补偿。
     输入:
-    df:     DataFrame, 待补偿数据
+    df:             DataFrame, 待补偿数据
     preprocessed:   布尔型, False代表未进行预处理, 需要进行预处理。
     '''
     if not preprocessed:
@@ -328,6 +328,7 @@ def compensate_df(df, channel='channel_0', preprocessed=False, ip=None, show_fit
         inflection_point = look_for_inflection_point(np.array(df1.iloc[:]).T)
         if ip:
             inflection_point = ip
+            print('Use inflection point: {}'.format(inflection_point))
         else:
             print('Find inflection point: {}'.format(inflection_point))
     
@@ -336,6 +337,11 @@ def compensate_df(df, channel='channel_0', preprocessed=False, ip=None, show_fit
     # 在拐点处对齐
     for i in range(arr.shape[0]):
         arr[i,:] = arr[i,:] - arr[i, inflection_point]
+        
+    # 在拐点+1处也对齐
+    if compensate_separately:
+        for i in range(arr.shape[0]):
+            arr[i,inflection_point+1:] = arr[i,inflection_point+1:] - arr[i, inflection_point+1]
     
     # 求补偿后真实值
     for i in range(len(df1.columns)):
@@ -371,14 +377,14 @@ def gen_label_template(path, name='labels.csv', num_slot=8):
 def default_calib_dir():
     return os.path.join(find_sitepackages(), 'fluodataprocessor')
 
-def calibrate_folder(folder, channel, preprocessed=False, gen_label=True, show_result=False, preset='manfredo', ip=None, save=False, show_fit=False):
+def calibrate_folder(folder, channel, preprocessed=False, gen_label=True, show_result=False, preset='manfredo', ip=None, compensate_separately=True, save=False, show_fit=False):
     fs = get_file_names_with_key(folder, filter='.csv', key=channel, with_folder=True)
     fs = list_filter_reversed(fs, key='calib')
     if preset == 'manfredo':
         fs = list_filter_reversed(fs, key='OneDay')
     for item in fs:
         df = pd.read_csv(item)
-        df1 = compensate_df(df, channel=channel, preprocessed=preprocessed, ip=ip, show_fit=show_fit)
+        df1 = compensate_df(df, channel=channel, preprocessed=preprocessed, ip=ip, compensate_separately=compensate_separately, show_fit=show_fit)
         if save:
             df1.to_csv(rename_calib(item), index=False)
         else:
