@@ -312,7 +312,7 @@ def load_coef(channel, directory=None):
     df_coef = calc_coef(df)
     return df2dic(df_coef)
         
-def compensate_df(df, channel='channel_0', preprocessed=False, ip=None, compensate_separately=True, show_fit=False):
+def compensate_df(df, channel='channel_0', mode='standard', preprocessed=False, ip=None, compensate_separately=True, show_fit=False):
     '''
     用于对于数据进行测量误差补偿。
     输入:
@@ -347,14 +347,17 @@ def compensate_df(df, channel='channel_0', preprocessed=False, ip=None, compensa
     for i in range(len(df1.columns)):
         arr[i,:] = arr[i,:] / D_coef[df1.columns[i]]
     
-    # 以拐点为界分别补偿
-    x_left = np.linspace(0, inflection_point, inflection_point+1)
-    x_right = np.linspace(inflection_point+1, arr.shape[1]-1, arr.shape[1]-inflection_point-1)
-    _, base_left = fit(x_left, arr[0, :inflection_point+1], show_fit=show_fit)
-    _, base_right = fit(x_right, arr[0, inflection_point+1:], show_fit=show_fit)
+    if mode.lower() == 'standard':
+        # 以拐点为界分别补偿
+        x_left = np.linspace(0, inflection_point, inflection_point+1)
+        x_right = np.linspace(inflection_point+1, arr.shape[1]-1, arr.shape[1]-inflection_point-1)
+        _, base_left = fit(x_left, arr[0, :inflection_point+1], show_fit=show_fit)
+        _, base_right = fit(x_right, arr[0, inflection_point+1:], show_fit=show_fit)
     
-    arr[:, :inflection_point+1] = arr[:, :inflection_point+1] - base_left
-    arr[:, inflection_point+1:] = arr[:, inflection_point+1:] - base_right
+        arr[:, :inflection_point+1] = arr[:, :inflection_point+1] - base_left
+        arr[:, inflection_point+1:] = arr[:, inflection_point+1:] - base_right
+    elif mode.lower() == 'self':
+        pass
 
     df_res = pd.DataFrame(arr.T, columns=df1.columns)
     
@@ -377,7 +380,7 @@ def gen_label_template(path, name='labels.csv', num_slot=8):
 def default_calib_dir():
     return os.path.join(find_sitepackages(), 'fluodataprocessor')
 
-def calibrate_folder(   folder, channel, 
+def calibrate_folder(   folder, channel, mode='standard',
                         preprocessed=False, gen_label=True, show_result=False, 
                         preset='manfredo', ip=None, compensate_separately=True, prelude='All', 
                         save=False, show_fit=False):
@@ -387,7 +390,7 @@ def calibrate_folder(   folder, channel,
         fs = list_filter_reversed(fs, key='OneDay')
     for item in fs:
         df = pd.read_csv(item)
-        df1, inflection_point = compensate_df(df, channel=channel, preprocessed=preprocessed, ip=ip, compensate_separately=compensate_separately, show_fit=show_fit)
+        df1, inflection_point = compensate_df(df, channel=channel, mode=mode, preprocessed=preprocessed, ip=ip, compensate_separately=compensate_separately, show_fit=show_fit)
         if save:
             if str(prelude).upper() != 'ALL':
                 df1 = df1.iloc[inflection_point-prelude:, :]
