@@ -59,6 +59,19 @@ class multiplefluoprocessor():
         for i in range(len(self.data)):
             tmp.append(self.data[i][:min_,:])
         self.aligned_data = np.array(tmp)
+        
+    def fit_size(self, *arrs):
+        min_shape0, min_shape1 = 10000, 10000
+        for item in arrs:
+            s0, s1 = item.shape
+            if s0 < min_shape0:
+                min_shape0 = s0
+            if s1 < min_shape1:
+                min_shape1 = s1
+        res = []
+        for item in arrs:
+            res.append(item[:s0, :s1])
+        return res
 
         
     

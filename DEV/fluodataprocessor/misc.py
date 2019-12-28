@@ -443,11 +443,9 @@ def extract_data_TL988(directory, channel, holes):
     if channel.upper() == 'ALL':
         D['channel_0'] = pd.DataFrame(np.array(channel_0).T, columns=names).sort_index(axis=1,ascending=True)
         D['channel_1'] = pd.DataFrame(np.array(channel_1).T, columns=names).sort_index(axis=1,ascending=True)
-        return D
-    elif channel.upper() == 'FAM' or channel.upper() == 'CHANNEL_0':
-        return pd.DataFrame(np.array(channel_0).T, columns=names).sort_index(axis=1,ascending=True)
-    elif channel.upper() == 'HEX' or channel.upper() == 'CHANNEL_1':
-        return pd.DataFrame(np.array(channel_1).T, columns=names).sort_index(axis=1,ascending=True)
+    else:
+        D[channel.lower()] = pd.DataFrame(np.array(channel_0).T, columns=names).sort_index(axis=1,ascending=True)
+    return D
     
 def get_name_and_value(f):
     name_ = f.readline()
