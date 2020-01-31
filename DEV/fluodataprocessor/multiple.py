@@ -70,7 +70,7 @@ class multiplefluoprocessor():
                 min_shape1 = s1
         res = []
         for item in arrs:
-            res.append(item[:s0, :s1])
+            res.append(item[:min_shape0, :min_shape1])
         return res
 
         
