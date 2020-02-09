@@ -1,11 +1,15 @@
-# version 0.486
-
 import sys
 import os
 
-if sys.platform == 'linux':
-    os.chdir(os.path.dirname(sys.argv[0]))
 
+__version__ = 0.486
+
+
+
+
+######################
+# Personal functions #
+######################
 def find_manfredo_folder():
     if sys.platform == 'linux':
         pass
