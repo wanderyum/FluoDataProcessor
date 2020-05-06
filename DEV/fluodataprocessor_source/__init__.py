@@ -2,7 +2,7 @@ import sys
 import os
 
 
-__version__ = 0.486
+__version__ = 0.487
 
 
 
